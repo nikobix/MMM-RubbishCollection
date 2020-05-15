@@ -1,5 +1,5 @@
 # MMM-RubbishCollection
-Magic Mirror module that skims local council website for bin collection times
+Magic Mirror module that skims local council website for bin collection times - this is my first real use module.
 
 ![alt text](https://github.com/nikobix/MMM-RubbishCollection/blob/master/img/App_Shot.jpg)
 
