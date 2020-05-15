@@ -20,7 +20,7 @@ Module.register("RubishCollection", {
 	defaults: {
 		updateInterval: 6 * 60 * 60 * 1000, //refresh every 6 hour
 		retryDelay: 5000,
-		weeks: "one",
+		weeks: 1,
 		test: false
 	},
 	
@@ -43,10 +43,10 @@ Module.register("RubishCollection", {
 		var dataNotification = null;
 		this.monthArray = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 		var tomorrowsDate = new Date();
-		this.binSize = "40px";
+		this.binSize = "20px";
 		tomorrowsDate.setDate(tomorrowsDate.getDate()+1);
 		console.log(tomorrowsDate);
-		this.binTimes = new Array(); //removed for testing
+		this.binTimes = new Array(); 
 		this.recyclePNG = this.file('img/green.png');
 		this.rubbishPNG = this.file('img/grey.png');
 		this.gardenPNG = this.file('img/brown.png');
@@ -61,7 +61,7 @@ Module.register("RubishCollection", {
 			this.binTimes = [
 			[ 'garden', 'Thursday 12 May 2020', 'Thursday 28 May 2020' ],
 			[ 'rubbish', 'Tuesday 15 May 2020', 'Tuesday 02 June 2020' ],
-			[ 'recycle', 'Tuesday 19 May 2020', 'Tuesday 16 May 2020','Tuesday 26 May 2020'  ]
+			[ 'recycle', 'Tuesday 14 May 2020', 'Tuesday 16 May 2020','Tuesday 26 May 2020'  ]
 						]; 
 			this.formateDate(this.binTimes);
 			this.binTimes = this.putDatesInOrder(this.binTimes);
@@ -111,17 +111,9 @@ Module.register("RubishCollection", {
 		if(this.binTimes != null){
 			var wrapper = document.createElement("div");
 			wrapper.className = "bintimes";
-			//console.log(this.config.weeks);
-			if(this.config.weeks === "one") 
-				{
-				wrapper.appendChild(this.DOMLayersOnce(this.binTimes));
-				//console.log("once");
-			} else 
-				{
-				wrapper.appendChild(this.DOMLayersMTO(this.binTimes));
-				//console.log("More Than Once");
-			}
-		return wrapper;
+			wrapper.appendChild(this.DOMLayersMTO(this.binTimes));
+			
+			return wrapper;
 		}
 	},
 	// create DOM table elements from binTimes array for more than one week
@@ -129,8 +121,7 @@ Module.register("RubishCollection", {
 		var header = false;
 		var headerFlag = false;
 		var binColor;
-
-		var cD;
+		var cD; //collection Date
 		
 // create table wrapper
 		var tbl = document.createElement("table");
@@ -139,24 +130,26 @@ Module.register("RubishCollection", {
 // load icons
 
 		var tD = this.tomorrowsDate();
-		this.binSize="40px";
 		var binImgs = this.getBinImg();
 		var brown = binImgs[0];
 		var green = binImgs[1];
 		var grey = binImgs[2];
 		var firstDate=false;
 		var textFlag = false;
+		var weeks = this.config.weeks;
 		
 		//loop all collection types
 		for(index = 0 ; index<date.length ; index++)
 			{	
 		// loop all times within collection type
-			for(item = 0 ; item<date[index].length; item++) 
+			weeks >= date[index].lenght ? weeks = date[index].length : weeks = weeks;
+			console.log(weeks);
+			for(item = 0 ; item<=weeks ;item++)//date[index].length; item++) 
 				{ 
 		// put array value into cellItem
 				var cellItem = date[index][item];
 		//set the cell spread for image depenent on number of dates
-				var spreadSize = date[index].length-1;
+				var spreadSize = weeks;
 		// put try catch here incase the html data changes ******
 		// check if item in array is text or date
 				switch (cellItem) {
@@ -179,35 +172,43 @@ Module.register("RubishCollection", {
 						headerFlag = false;
 						
 					}
-				
+				//binColor.className = "bin";
 				if(headerFlag){
 					var row = document.createElement('tr');
+					row.className = "time_row";
 					var colSpread = document.createElement('th');
 					var toDay = new Date().toDateString();
 					// if collecion date for tomorrow
 					if(tD === cD) {
-						 colSpread.className = 'flashbin';
-						 binColor.style = `width = 40px`;
-						 text = "Tomorrow";
-						 textFlag=true;
-					 } 
+						textFlag=true;
+						text = this.flashBin("Tomorrow" , colSpread , binColor, row);
+						binColor.className = "flashBinImg";
+					 } else 
 					// if collecion date for today
 					 if(toDay == cD) {
-						 colSpread.className = 'flashbin';
-						 binColor.style = `width = 30px`;
-						 textFlag=true;
-						 text = "Today";
-					 }		
-					colSpread.setAttribute('rowSpan',spreadSize);
+						textFlag=true;
+						text = this.flashBin("Today" , colSpread , binColor, row);
+						binColor.className = "flashBinImg";
+					 } else	{
+						 binColor.className = "bin";
+						 }
+					colSpread.setAttribute('rowSpan', weeks); 
+					
 					colSpread.appendChild(binColor);
 					row.appendChild(colSpread);
 					firstDate=true;
 				}else if(firstDate && !headerFlag) {
 					//console.log(cellItem)
 					var col = document.createElement('td');
-					col.className	= `cell_${item}_${index}`;
-					textFlag ? col.textContent = text : col.innerHTML = cellItem.toDateString();
-					textFlag ? col.className = 'flashbin' : col.className = `cell_${item}_${index}`;
+					col.className	= `text`;
+					if(textFlag) {
+						col.textContent = text;
+						col.className = 'flashbintext';
+						}
+					else {
+						col.innerHTML = cellItem.toDateString();
+						col.className = `text`;
+					}
 					row.appendChild(col);
 					tbl.appendChild(row);
 					firstDate = false;
@@ -215,9 +216,11 @@ Module.register("RubishCollection", {
 					textFlag = false;
 				}else{
 					var row = document.createElement('tr');
+					row.className = "time_row";
 					var col = document.createElement('td');
-					col.className	= `cell_${item}_${index}`;
-					col.innerHTML = cellItem.toDateString();
+					col.className	= `text`;
+					console.log(cellItem);
+					cellItem!=null ? col.innerHTML = cellItem.toDateString() : col.innerHTML = "";
 					row.appendChild(col);
 					tbl.appendChild(row);
 				}
@@ -226,95 +229,12 @@ Module.register("RubishCollection", {
 	//console.log(tbl);
 	return tbl;
 	},
-	// create DOM table elements from binTimes array for one week
-	DOMLayersOnce: function(date){
-		var header = false;
-		var headerFlag = false;
-		var binColor;
-		this.binSize = "20px";
-		var cD;
-		
-// create table wrapper
-		var tbl = document.createElement("table");
-		tbl.className = "bin_table";
-		
 
-// load icons
-
-		var tD = this.tomorrowsDate();
-		var binImgs = this.getBinImg();
-		var brown = binImgs[0];
-		var green = binImgs[1];
-		var grey = binImgs[2];
-		var firstDate=false;
-		var textFlag=false;
-		
-		//loop all collection types
-		for(index = 0 ; index<date.length ; index++)
-			{	
-		// put try catch here incase the html data changes ******
-		// Check which collection for each index item
-				switch (date[index][0]) {
-					case 'rubbish':
-						binColor = grey;
-					break;
-					case 'garden':
-						binColor = brown;
-					break;
-					case 'recycle':
-						binColor = green
-					break;
-						
-					}
-					
-					// create cD as date of collection
-					cD = date[index][1].toDateString();
-					//create tD as todays date as string
-					var toDay = new Date().toDateString();
-					// build row
-					var row = document.createElement('tr');
-					row.id = `binRow${index}`;
-					var colSpread = document.createElement('th');
-					var text = "";
-					// if collection date tomorrow flash bin
-					//console.log(`tomorrow date = ${tD} collection date = ${cD}`);
-					if(tD === cD) {
-						textFlag=true;
-						text = this.flashBin("Tomorrow" , colSpread , binColor, row);
-					 }
-					 // if collecion date for today
-					 //console.log(`todays date = ${toDay} collection date = ${cD}`);
-					 if(toDay == cD) {
-						 textFlag=true;
-						 text = this.flashBin("Today" ,colSpread , binColor ,row);
-					 }						 
-					 
-					//colSpread.setAttribute('rowSpan',1);
-					colSpread.appendChild(binColor);
-					row.appendChild(colSpread);
-					var col = document.createElement('td');
-					textFlag ? col.textContent = text : col.innerHTML = date[index][1].toDateString();
-					textFlag ? col.className = 'flashbin' : col.className = `cell_${item}_${index}`;
-					row.appendChild(col);					
-					tbl.appendChild(row);
-					firstDate = false;
-					headerFlag = false;
-					textFlag=false;
-				
-			}
-		
-	//console.log(tbl);
-	return tbl;
-	},
-	clicked: function(){
-		console.log("Clicked");
-		
-	},
-	
+	// function to add flashing bin and text with on click to stop flashing. 
 	flashBin: function(textType , colSpread, binColor, row){
-		colSpread.className = 'flashbin';
-		binColor.style = `width = 30px`;
-		row.addEventListener("click", () => this.clicked());
+		row.className = 'flashbin time_row';
+		//binColor.style = `width = 10px`;
+		row.addEventListener("click", () => row.className = 'noflashbin');
 		textFlag=true;
 		return textType;
 	},
@@ -322,27 +242,27 @@ Module.register("RubishCollection", {
 	getScripts: function() {
 		return [];
 	},
+	//function to return tomorrows date
 	tomorrowsDate: function(){
 		var tomorrowsDate = new Date();
 		tomorrowsDate.setDate(tomorrowsDate.getDate()+1);
 		var tD = tomorrowsDate.toDateString();
 		return tD;
 	},
+	//function to load images and return an array of images
 	getBinImg: function(){
 		var brown = document.createElement('img');
 		brown.src=this.gardenPNG;
-		brown.style =`width: ${this.binSize}`;
-		brown.id = 'brownBin';
+		//brown.style =`width: ${this.binSize}`;
 		
 		var green = document.createElement('img');
 		green.src=this.recyclePNG;
-		green.style =`width: ${this.binSize}`;
-		green.id = 'greenBin';
-			
+		//green.style =`width: ${this.binSize}`;
+				
 		var grey = document.createElement('img');
 		grey.src=this.rubbishPNG;
-		grey.style =`width: ${this.binSize}`;
-		grey.id = 'grey';
+		//8grey.style =`width: ${this.binSize}`;
+
 		var firstDate=false;
 		
 		return [brown , green , grey];
@@ -357,6 +277,7 @@ Module.register("RubishCollection", {
 		};
 	},
 
+// function to format the date array and return formatted array
 	formateDate: function(dateArray) {
 						//loop all collection types
 		for(index = 0 ; index<dateArray.length ; index++)
