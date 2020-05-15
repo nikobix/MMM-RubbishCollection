@@ -8,19 +8,6 @@
  * Custom here your css module
  *
  */
- table, tr ,th ,td{
-  border-collapse: collapse;
-  font-size: 25px;
-  
-}
-
-td{
-height: 30px;
-}
-table {
-	background-color:black;
-	
-}
 
 @-webkit-keyframes blink {
     0% {
@@ -62,11 +49,54 @@ table {
     -moz-animation-iteration-count: infinite;
     -o-animation: blink 1s;
     -o-animation-iteration-count: infinite;
-    font-size: 40px;
+    font-size: 30px;
     font-weight: bold;
+    text-align: center;
+    vertical-align: top;
+    line-height: 30px;
     
 }
-.bintimes{
-    height: 350px;
-    
+.flashBinImg {
+    width: 30px;
+    line-height: 30px;
     }
+    
+
+    
+.bin {
+    width: 20px;
+    line-height: 30px;
+    }
+
+.flashbintext{
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 30px;
+}    
+
+.noflashbin{
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 30px;
+}
+.text{
+    font-size: 20px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 30px;
+}
+.bin_table {
+    border-collapse: collapse;
+}
+
+.bin_table td {
+border: 1px solid grey;
+border-left: 0px;
+border-right: 0px;
+border-bottom: 0px;
+}
+
