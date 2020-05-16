@@ -3,9 +3,6 @@ Magic Mirror module that skims local council website for bin collection times - 
 
 ![alt text](https://github.com/nikobix/MMM-RubbishCollection/blob/master/img/App_Shot.jpg)
 
-
-Build details to follow - still bug fixing and updating.
-
 Uses Nodehelper.js to obtain data from local council website. The website address is passed to the NodeHelper from the main JS. I use skimming but there are some councils that have APIs.
 As long as the Nodehelper returns the data as an array in the below format the RubbishCollection module will display with flashing bin for today or next day with a click to stop flashing. 
 
